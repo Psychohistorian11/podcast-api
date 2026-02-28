@@ -1,13 +1,14 @@
 from fastapi import FastAPI
 from app.config import get_settings
 from app.database import engine, Base
+from app.models import Participant, Podcast, Episode
 
 settings = get_settings()
 
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
-    description="API RESTful sencilla para la gestión de podcasts",
+    description="API RESTful to manage podcasts, episodes and participants",
 )
 
 # Crear tablas al iniciar
