@@ -1,15 +1,27 @@
 from fastapi import FastAPI
+from app.config import get_settings
+from app.database import engine, Base
+
+settings = get_settings()
 
 app = FastAPI(
-    title="podcast-api",
-    version="0.1.0",
+    title=settings.APP_NAME,
+    version=settings.APP_VERSION,
     description="API RESTful sencilla para la gestión de podcasts",
 )
+
+# Crear tablas al iniciar
+Base.metadata.create_all(bind=engine)
 
 
 @app.get("/", tags=["Health"])
 def root():
-    return {"status": "running", "app": "podcast-api", "version": "0.1.0"}
+    return {
+        "status": "running",
+        "app": settings.APP_NAME,
+        "version": settings.APP_VERSION,
+        "environment": settings.ENVIRONMENT,
+    }
 
 
 @app.get("/health", tags=["Health"])
