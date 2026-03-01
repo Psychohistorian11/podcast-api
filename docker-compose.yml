@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: podcast_db
+    ports:
+      - "5432:5432" #Mi computadora:5432  ←→  Contenedor:5432
+      # cuando me estoy conectando al puerto 5432 desde mi pc, se redirige al puerto 5432 del contenedor
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persistencia de datos
+      # Sin esto, si se baja el contenedor (down) se pierden los datos
+
+  app:
+    build: .
+    ports:
+      - "8000:8000" #lo mismo con este puerto
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/podcast_db
+      ENVIRONMENT: development
+    depends_on:
+      - db
+    restart: on-failure
+
+volumes:
+  postgres_data:
