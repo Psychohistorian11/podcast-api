@@ -16,4 +16,6 @@ venv/
 
 .pytest_cache/
 .coverage
-htmlcov/    
+htmlcov/
+
+test.db
