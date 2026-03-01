@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.concurrency import asynccontextmanager
 from app.config import get_settings
 from app.database import engine, Base
 from app.models import Participant, Podcast, Episode
@@ -6,14 +7,17 @@ from app.routers import participant, podcast, episode
 
 settings = get_settings()
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    yield
+
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
     description="API RESTful to manage podcasts, episodes and participants",
 )
 
-# Crear tablas al iniciar
-Base.metadata.create_all(bind=engine)
 
 app.include_router(participant.router)
 app.include_router(podcast.router)
