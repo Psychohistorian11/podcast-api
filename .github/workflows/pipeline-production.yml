@@ -1,13 +1,13 @@
-name: "🧪 Pipeline Pruebas"
+name: "🚀 Pipeline Producción"
 
 on:
   push:
-    branches: [develop]
+    branches: [main]
   pull_request:
-    branches: [develop]
+    branches: [main]
 
 jobs:
-  test:
+  production:
     runs-on: ubuntu-latest
 
     steps:
@@ -32,8 +32,8 @@ jobs:
         run: |
           pytest --cov=app --cov-report=term-missing --cov-report=xml -v
 
-      # 5. Validar cobertura >= 60%
-      - name: "📊 Validar cobertura mínima (≥60%)"
+      # 5. Validar cobertura >= 85%
+      - name: "📊 Validar cobertura mínima (≥85%)"
         run: |
           COVERAGE=$(python -c "
           import xml.etree.ElementTree as ET
@@ -43,13 +43,18 @@ jobs:
           print(f'{rate:.0f}')
           ")
           echo "Cobertura actual: ${COVERAGE}%"
-          if [ "$COVERAGE" -lt 60 ]; then
-            echo "❌ FALLO: Cobertura ${COVERAGE}% es menor al 60% requerido"
+          if [ "$COVERAGE" -lt 85 ]; then
+            echo "❌ FALLO: Cobertura ${COVERAGE}% es menor al 85% requerido para PRODUCCIÓN"
             exit 1
           fi
-          echo "✅ Cobertura ${COVERAGE}% cumple el mínimo de 60%"
+          echo "✅ Cobertura ${COVERAGE}% cumple el mínimo de 85% para producción"
 
-      - name: "🚀 Deploy a ambiente Pruebas"
-        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+      # 6. Validar que la imagen Docker se construye correctamente
+      - name: "🐳 Validar build Docker"
         run: |
-          echo "✅ Deploy a pruebas pendiente de configurar"
+          docker build -t podcast-api:${{ github.sha }} .
+
+      - name: "🚀 Deploy a ambiente Producción"
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "✅ Deploy a producción pendiente de configurar"
