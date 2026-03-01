@@ -1,6 +1,4 @@
 class TestParticipant:
-    """Tests para el CRUD de Participant."""
-
     def test_create_participant(self, client):
         response = client.post(
             "/participants/",
