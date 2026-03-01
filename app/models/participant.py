@@ -16,4 +16,4 @@ class Participant(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relación: un participante puede estar en muchos episodios
-    episodes = relationship("Episode", back_populates="participant")
+    episode = relationship("Episode", back_populates="participant")

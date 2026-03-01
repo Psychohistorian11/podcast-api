@@ -16,4 +16,4 @@ class Podcast(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relación: un podcast tiene muchos episodios
-    episodes = relationship("Episode", back_populates="podcast")
+    episode = relationship("Episode", back_populates="podcast")
