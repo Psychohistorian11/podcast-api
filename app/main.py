@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app.config import get_settings
 from app.database import engine, Base
 from app.models import Participant, Podcast, Episode
+from app.routers import participant 
 
 settings = get_settings()
 
@@ -13,6 +14,8 @@ app = FastAPI(
 
 # Crear tablas al iniciar
 Base.metadata.create_all(bind=engine)
+
+app.include_router(participant.router)
 
 
 @app.get("/", tags=["Health"])
