@@ -12,7 +12,7 @@ class TestPodcast:
         assert response.status_code == 201
         data = response.json()
         assert data["title"] == "Tech Talks"
-        assert data["category"] == "Tecnologíaaaaa"
+        assert data["category"] == "Tecnología"
         assert "id" in data
 
     def test_get_podcasts(self, client):
