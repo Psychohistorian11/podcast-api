@@ -57,6 +57,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu/podcast-api
+            git checkout -- .
             git pull origin main
             docker compose up --build -d
             docker image prune -f
