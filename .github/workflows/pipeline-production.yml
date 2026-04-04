@@ -39,17 +39,25 @@ jobs:
           ")
           echo "Cobertura actual: ${COVERAGE}%"
           if [ "$COVERAGE" -lt 85 ]; then
-            echo "❌ FALLO: Cobertura ${COVERAGE}% es menor al 85% requerido para PRODUCCIÓN"
+            echo "❌ FALLO: Cobertura ${COVERAGE}% es menor al 85% requerido"
             exit 1
           fi
-          echo "✅ Cobertura ${COVERAGE}% cumple el mínimo de 85% para producción"
+          echo "✅ Cobertura ${COVERAGE}% cumple el mínimo de 85%"
 
       - name: "🐳 Validar build Docker"
         run: |
           docker build -t podcast-api:${{ github.sha }} .
 
-      - name: "🚀 Deploy a ambiente Producción"
+      - name: "🚀 Deploy a EC2"
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_PROD }}"
-          echo "✅ Deploy a PRODUCCIÓN iniciado"
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/podcast-api
+            git pull origin main
+            docker compose up --build -d
+            docker image prune -f
+            echo "✅ Deploy v2.0.0 completado"

@@ -43,9 +43,3 @@ jobs:
             exit 1
           fi
           echo "✅ Cobertura ${COVERAGE}% cumple el mínimo de 60%"
-
-      - name: "🚀 Deploy a ambiente Pruebas"
-        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
-        run: |
-          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_TEST }}"
-          echo "✅ Deploy a PRUEBAS iniciado"

@@ -4,7 +4,7 @@ from functools import lru_cache
 
 class Settings(BaseSettings):
     APP_NAME: str = "podcast-api"
-    APP_VERSION: str = "0.1.0"
+    APP_VERSION: str = "2.0.0"
     ENVIRONMENT: str = "development"
     DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/podcast_db"
 

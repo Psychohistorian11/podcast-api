@@ -18,4 +18,9 @@ venv/
 .coverage
 htmlcov/
 
-test.db
+#docker
+docker-compose.local.yml
+
+# AWS
+*.pem
+*.pem.pub
