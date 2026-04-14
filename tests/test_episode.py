@@ -6,7 +6,7 @@ class TestEpisode:
             json={"name": "Host Test", "email": "host@test.com", "role": "host"},
         ).json()
         podcast = client.post(
-            "/podcasts/",
+            "/v2/podcasts/",
             json={"title": "Test Podcast", "category": "Test"},
         ).json()
         return participant["id"], podcast["id"]
