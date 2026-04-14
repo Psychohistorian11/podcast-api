@@ -1,8 +1,8 @@
 from fastapi import FastAPI
-from fastapi.concurrency import asynccontextmanager
+from contextlib import asynccontextmanager
+from prometheus_fastapi_instrumentator import Instrumentator
 from app.config import get_settings
 from app.database import engine, Base
-from app.models import Participant, Podcast, Episode
 from app.routers import participant, podcast, episode
 
 settings = get_settings()
@@ -18,6 +18,7 @@ app = FastAPI(
     description="API RESTful to manage podcasts, episodes and participants",
 )
 
+Instrumentator().instrument(app).expose(app)
 
 app.include_router(participant.router)
 app.include_router(podcast.router)
