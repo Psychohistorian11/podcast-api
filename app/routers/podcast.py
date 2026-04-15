@@ -10,8 +10,7 @@ from app.schemas.podcast import (
     PodcastPatch,
 )
 
-router = APIRouter(prefix="/podcasts", tags=["Podcasts"])
-
+router = APIRouter(prefix="/v2/podcasts", tags=["v2 - Podcasts"])
 
 @router.get("/", response_model=List[PodcastResponse])
 def get_podcasts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
