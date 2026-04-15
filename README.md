@@ -2,12 +2,14 @@
 
 API RESTful para gestión de podcasts, construida con **FastAPI**, **PostgreSQL** y **Docker**. Incluye pipelines CI/CD con GitHub Actions y despliegue automático a dos ambientes independientes.
 
-## 🚀 Demo en vivo
+## Aplicación corriendo en EC2-AWS
 
-| Ambiente | URL |
+| Servicio | URL |
 |----------|-----|
-| 🧪 Pruebas | [podcast-api-test.onrender.com](https://podcast-api-test.onrender.com) |
-| 🚀 Producción | [podcast-api-prod.onrender.com](https://podcast-api-prod.onrender.com) |
+| Apliccación | [http://podcast-api.duckdns.org/](http://podcast-api.duckdns.org/) |
+| Prometheus  | [http://podcast-api.duckdns.org:9090/](http://podcast-api.duckdns.org:9090/) |
+| Grafana | [http://podcast-api.duckdns.org:3000/](http://podcast-api.duckdns.org:3000/) |
+
 
 > 📝 Agrega `/docs` a la URL para ver la documentación interactiva (Swagger UI).
 
