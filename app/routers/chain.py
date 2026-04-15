@@ -1,23 +1,27 @@
+import random
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.message_chain import MessageChain
 from app.models.podcast import Podcast
-from app.schemas.message_chain import MessageChainResponse, MessageChainReceive, PodcastData
+from app.schemas.message_chain import (
+    MessageChainReceive,
+    MessageChainResponse,
+    PodcastData
+)
 from app.config import get_settings
 
 settings = get_settings()
-router = APIRouter(prefix="/v2/chain", tags=["v2 - Chain"])
+
+router = APIRouter(prefix="/integration", tags=["Integration"])
 
 
-@router.post("/receive", status_code=status.HTTP_201_CREATED)
-def receive_from_ScoreBank(body: MessageChainReceive, db: Session = Depends(get_db)):
-    """
-    Recibe entidad Cliente y la guarda en message_chain
-    con podcast y vehiculo en null.
-    """
-
+@router.post("/multicloud", response_model=MessageChainResponse)
+async def integration_multicloud(
+    body: MessageChainReceive,
+    db: Session = Depends(get_db)
+):
     cliente = body.cliente
 
     existing = db.query(MessageChain).filter(
@@ -26,88 +30,42 @@ def receive_from_ScoreBank(body: MessageChainReceive, db: Session = Depends(get_
 
     if existing:
         existing.cliente_data = cliente.model_dump()
-        existing.podcast_id = None
-        existing.vehiculo_data = None
-        db.commit()
-        db.refresh(existing)
         message = existing
     else:
         message = MessageChain(
             cliente_id=cliente.id,
-            cliente_data=cliente.model_dump(),
-            podcast_id=None,
-            vehiculo_data=None
+            cliente_data=cliente.model_dump()
         )
         db.add(message)
-        db.commit()
-        db.refresh(message)
 
-    return {
-        "status": "received",
-        "message_id": message.id,
-        "cliente": message.cliente_data,
-        "podcast": None,
-        "vehiculo": None
-    }
+    db.commit()
+    db.refresh(message)
 
+    podcast = None
 
-@router.post("/send/{podcast_id}", response_model=MessageChainResponse)
-async def send_to_VehicleAPI(podcast_id: int, db: Session = Depends(get_db)):
-    """
-    Endpoint que el usuario llama pasando el podcast_id.
-    1. Busca el último mensaje recibido
-    2. Hace GET a ScoreBanckAPI para traer datos frescos del cliente
-    3. Actualiza en DB si hay cambios
-    4. Adjunta el Podcast
-    5. Envía todo a terceraAPI
-    """
+    if body.podcast_id and body.podcast_id.isdigit():
+        podcast = db.query(Podcast).filter(
+            Podcast.id == int(body.podcast_id)
+        ).first()
 
-    # 1. Buscar el mensaje más reciente
-    message = db.query(MessageChain).order_by(
-        MessageChain.created_at.desc()
-    ).first()
-
-    if not message:
-        raise HTTPException(
-            status_code=404,
-            detail="No hay mensajes recibidos de Simón aún. Llama primero a /receive"
-        )
-
-    # 2. GET a la API de ScoreBanck para traer datos frescos
-    cliente_id = message.cliente_id
-    try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.get(
-                f"{settings.SIMON_API_URL}/api/v2/clientes/{cliente_id}"
+        if not podcast:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Podcast con id {body.podcast_id} no encontrado"
             )
-            if response.status_code == 200:
-                fresh_cliente = response.json()
+    else:
+        podcasts = db.query(Podcast).all()
+        if not podcasts:
+            raise HTTPException(
+                status_code=404,
+                detail="No hay podcasts disponibles"
+            )
+        podcast = random.choice(podcasts)
 
-                # 3. Verificar si algo cambió y actualizar si es necesario
-                if fresh_cliente != message.cliente_data:
-                    message.cliente_data = fresh_cliente
-                    db.commit()
-                    db.refresh(message)
-
-    except Exception as e:
-        # Si ScoreBanck no responde, continuamos con los datos que tenemos
-        # No bloqueamos la cadena por esto
-        print(f"⚠️ No se pudo conectar a ScoreBanck: {e}. Usando datos guardados.")
-
-    # 4. Buscar el Podcast
-    podcast = db.query(Podcast).filter(Podcast.id == podcast_id).first()
-    if not podcast:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Podcast con id {podcast_id} no encontrado"
-        )
-
-    # 5. Actualizar el mensaje con el podcast
     message.podcast_id = podcast.id
     db.commit()
     db.refresh(message)
 
-    # 6. Construir el DTO completo
     dto = {
         "cliente": message.cliente_data,
         "podcast": PodcastData(
@@ -116,20 +74,42 @@ async def send_to_VehicleAPI(podcast_id: int, db: Session = Depends(get_db)):
             description=podcast.description,
             category=podcast.category,
             language=podcast.language,
-        ),
-        "vehiculo": None
+        ).model_dump(),
+        "vehicle_id": body.vehicle_id if body.vehicle_id not in ["string", ""] else None
     }
 
-    # 7. Enviar a VehicleAPI si tiene URL configurada
-    if settings.JOSE_PABLO_API_URL:
-        try:
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                jose_response = await client.post(
-                    f"{settings.JOSE_PABLO_API_URL}/api/v2/chain/receive",
-                    json=dto
-                )
-                print(f"✅ Enviado a VehicleAPI: {jose_response.status_code}")
-        except Exception as e:
-            print(f"⚠️ No se pudo enviar a VehicleAPI: {e}")
 
-    return dto
+    invalid_ids = ["string", "", None]
+    
+    clean_vehicle_id = None
+    if body.vehicle_id and body.vehicle_id.strip() not in invalid_ids:
+        clean_vehicle_id = body.vehicle_id
+
+    dto["vehicle_id"] = clean_vehicle_id
+
+
+    print("📤 Enviando a integración de José Pablo...")
+    print(f"DTO: {dto}")
+    
+    integration_data = None
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.post(
+                f"{settings.JOSE_PABLO_API_URL}/integration/multicloud",
+                json=dto
+            )
+            
+            if response.status_code == 200:
+                print("✅ API de José Pablo respondió con éxito")
+                integration_data = response.json()
+                print(f"Datos de integración: {integration_data}")
+            else:
+                print(f"⚠️ API externa falló con código {response.status_code}: {response.text}")
+                raise HTTPException(status_code=response.status_code, detail="Error en API de José Pablo")
+
+    except Exception as e:
+        print(f"⚠️ Error de conexión: {e}")
+        raise HTTPException(status_code=500, detail="No se pudo conectar con la API de integración")
+
+    return integration_data

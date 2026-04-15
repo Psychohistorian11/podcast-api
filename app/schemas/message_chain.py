@@ -20,16 +20,15 @@ class PodcastData(BaseModel):
 
 
 class MessageChainReceive(BaseModel):
-    """Lo que ScoreBanck nos manda."""
     cliente: ClienteData
-    podcast: Optional[Any] = None
-    vehiculo: Optional[Any] = None
+    podcast_id: Optional[str] = None
+    vehicle_id: Optional[str] = None
 
 
 class MessageChainResponse(BaseModel):
     cliente: ClienteData
     podcast: Optional[PodcastData] = None
-    vehiculo: Optional[Any] = None
+    vehicle: Optional[Any] = None
 
     model_config = ConfigDict(from_attributes=True)
 
