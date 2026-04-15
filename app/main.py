@@ -1,3 +1,4 @@
+from prometheus_fastapi_instrumentator import Instrumentator
 from contextlib import asynccontextmanager
 import logging
 import time
@@ -22,6 +23,8 @@ app = FastAPI(
     description="API RESTful to manage podcasts, episodes and participants",
     lifespan=lifespan,
 )
+
+Instrumentator().instrument(app).expose(app)
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):

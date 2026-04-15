@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 15s        # Pregunta cada 15 segundos
+  evaluation_interval: 15s    # Evalúa reglas de alerta cada 15s
+
+scrape_configs:
+  - job_name: "podcast-api"
+    static_configs:
+      - targets: ["app:8000"]   # "app" = nombre del servicio en docker-compose
+    metrics_path: /metrics
