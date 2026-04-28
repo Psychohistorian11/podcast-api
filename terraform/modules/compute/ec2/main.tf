@@ -46,7 +46,7 @@ resource "aws_instance" "app" {
 
     cat > .env << 'ENVFILE'
     APP_NAME=podcast-api
-    APP_VERSION=2.5.0
+    APP_VERSION=3.0.0
     ENVIRONMENT=production
     DATABASE_URL=postgresql://${var.db_username}:${var.db_password}@${var.db_endpoint}:5432/${var.db_name}
     SIMON_API_URL=${var.simon_api_url}

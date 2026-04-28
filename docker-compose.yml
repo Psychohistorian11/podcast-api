@@ -11,7 +11,7 @@ services:
     restart: unless-stopped
 
   prometheus:
-    image: prom/prometheus:v2.51.0
+    image: prom/prometheus:v3.0.0
     ports:
       - "9090:9090"
     volumes:
