@@ -25,3 +25,12 @@ docker-compose.local.yml
 # AWS
 *.pem
 *.pem.pub
+
+# Terraform
+terraform/.terraform/
+terraform/*.tfvars
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/.terraform.lock.hcl
+
+terraform/.terraform.tfvars
