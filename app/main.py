@@ -52,4 +52,13 @@ def health():
         "version": settings.APP_VERSION,
         "app": settings.APP_NAME,
         "env": settings.ENVIRONMENT,
+        "deploy_date": settings.DEPLOY_DATE,
+    }
+
+@app.get("/canary-info", tags=["Canary"])
+def canary_info():
+    return {
+        "message": "🐦 You are hitting the CANARY version",
+        "version": settings.APP_VERSION,
+        "new_feature": "Canary deployment active"
     }
