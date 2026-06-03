@@ -45,9 +45,9 @@ app.include_router(episode.router)
 app.include_router(chain.router)
 
 @app.get("/health", tags=["Health"])
-def root():
+def health():
     return {
-        "status": "running",
+        "status": "healthy",
         "release": settings.RELEASE_TYPE,
         "version": settings.APP_VERSION,
         "app": settings.APP_NAME,
