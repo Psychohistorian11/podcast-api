@@ -61,4 +61,4 @@ jobs:
             git pull origin main
             docker compose up --build -d
             docker image prune -f
-            echo "✅ Deploy v2.0.0 completado"
+            echo "✅ Deploy v3.0.0 completado"

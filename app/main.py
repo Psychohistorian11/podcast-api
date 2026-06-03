@@ -44,15 +44,12 @@ app.include_router(podcast.router)
 app.include_router(episode.router)
 app.include_router(chain.router)
 
-@app.get("/", tags=["Health"])
+@app.get("/health", tags=["Health"])
 def root():
     return {
         "status": "running",
         "release": settings.RELEASE_TYPE,
         "version": settings.APP_VERSION,
         "app": settings.APP_NAME,
+        "env": settings.ENVIRONMENT,
     }
-
-@app.get("/health", tags=["Health"])
-def health():
-    return {"status": "healthy"}
