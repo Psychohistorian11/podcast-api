@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: podcast-api-stable
+  namespace: podcast-api
+  labels:
+    app: podcast-api
+    version: stable
+
+spec:
+  replicas: 4
+
+  selector:
+    matchLabels:
+      app: podcast-api
+      version: stable
+
+  template:
+    metadata:
+      labels:
+        app: podcast-api
+        version: stable
+
+    spec:
+      containers:
+      - name: podcast-api
+
+        image: psychohistorian/podcast-api:stable
+
+        ports:
+        - containerPort: 8000
+
+        env:
+        - name: RELEASE_TYPE
+          value: "stable"
+
+        - name: APP_VERSION
+          value: "3.0.0"
+
+        - name: DATABASE_URL
+          value: "postgresql://postgres:hO2gHVASPnqIIW4EDOAW@podcast-api-prod-db.c4vyga284de4.us-east-1.rds.amazonaws.com:5432/podcast_db"
+
+        - name: ENVIRONMENT
+          value: "production"
+
+        - name: SIMON_API_URL
+          value: "http://34.41.107.90"
+
+        - name: JOSE_PABLO_API_URL
+          value: "http://34.21.77.119/api/v2"
+
+        - name: DEPLOY_DATE
+          value: "2026-06-03"
