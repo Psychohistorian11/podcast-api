@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql://postgres:postgres@db:5432/podcast_db"
     SIMON_API_URL: str = "http://34.41.107.90"
     JOSE_PABLO_API_URL: str = "http://34.21.77.119/api/v2"
+    RELEASE_TYPE: str = "stable"
+
 
     class Config:
         env_file = ".env"
