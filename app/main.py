@@ -52,4 +52,5 @@ def health():
         "version": settings.APP_VERSION,
         "app": settings.APP_NAME,
         "env": settings.ENVIRONMENT,
+        "deploy_date": settings.DEPLOY_DATE,
     }
